@@ -12,7 +12,13 @@ export async function getBookingsByDate(businessId: string, date: string) {
     .order("start_time")
     .returns<Booking[]>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getBookingsByDate:", { businessId, date, error });
+    }
+    throw error;
+  }
+
   return data ?? [];
 }
 
@@ -27,7 +33,13 @@ export async function getUpcomingBookings(businessId: string) {
     .order("start_time")
     .returns<Booking[]>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getUpcomingBookings:", { businessId, error });
+    }
+    throw error;
+  }
+
   return data ?? [];
 }
 
@@ -39,7 +51,13 @@ export async function createBooking(input: BookingInput) {
   };
 
   const { data, error } = await supabase.from("bookings").insert(booking).select("*").single<Booking>();
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em createBooking:", { input, error });
+    }
+    throw error;
+  }
+
   return data;
 }
 

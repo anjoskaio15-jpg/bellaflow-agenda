@@ -51,14 +51,23 @@ export function ClientePage() {
         setServices([]);
         return;
       }
-      const loadedServices = await getServices(loadedBusiness.id);
       setBusiness(loadedBusiness);
-      setServices(loadedServices);
       applyTheme(loadedBusiness);
+
+      const loadedServices = await getServices(loadedBusiness.id);
+      setServices(loadedServices);
     }
 
     load()
-      .catch(() => toast.error("Nao foi possivel carregar esta agenda."))
+      .catch((error) => {
+        if (import.meta.env.DEV) {
+          console.error("Erro ao carregar ClientePage:", {
+            slug,
+            error,
+          });
+        }
+        toast.error("Nao foi possivel carregar esta agenda.");
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -71,7 +80,17 @@ export function ClientePage() {
     setSlotLoading(true);
     getAvailableSlots(business.id, date, totalDuration)
       .then(setSlots)
-      .catch(() => toast.error("Nao foi possivel buscar horarios."))
+      .catch((error) => {
+        if (import.meta.env.DEV) {
+          console.error("Erro ao carregar horarios disponiveis:", {
+            businessId: business.id,
+            date,
+            totalDuration,
+            error,
+          });
+        }
+        toast.error("Nao foi possivel buscar horarios.");
+      })
       .finally(() => setSlotLoading(false));
   }, [business, date, totalDuration]);
 

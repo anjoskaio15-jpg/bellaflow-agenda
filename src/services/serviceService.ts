@@ -7,11 +7,20 @@ export async function getServices(businessId: string) {
     .select("*")
     .eq("business_id", businessId)
     .eq("is_active", true)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true })
+    .order("name", { ascending: true })
     .returns<BeautyService[]>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getServices:", {
+        businessId,
+        query: "services select active by business_id order by name",
+        error,
+      });
+    }
+    throw error;
+  }
+
   return data ?? [];
 }
 
@@ -20,12 +29,21 @@ export async function getServicesByBusiness(businessId: string) {
     .from("services")
     .select("*")
     .eq("business_id", businessId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
+    .order("name", { ascending: true })
     .returns<BeautyService[]>();
 
-  if (error) throw error;
-  return data ?? [];
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getServicesByBusiness:", {
+        businessId,
+        query: "services select by business_id order by name",
+        error,
+      });
+    }
+    throw error;
+  }
+
+  return (data ?? []).filter((service) => !service.deleted_at);
 }
 
 export async function createService(businessId: string, input: ServiceFormInput) {
@@ -42,7 +60,13 @@ export async function createService(businessId: string, input: ServiceFormInput)
     .select("*")
     .single<BeautyService>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em createService:", { businessId, input, error });
+    }
+    throw error;
+  }
+
   return data;
 }
 
@@ -62,7 +86,13 @@ export async function updateService(businessId: string, serviceId: string, input
     .select("*")
     .single<BeautyService>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em updateService:", { businessId, serviceId, input, error });
+    }
+    throw error;
+  }
+
   return data;
 }
 
@@ -76,7 +106,13 @@ export async function toggleServiceActive(businessId: string, serviceId: string,
     .select("*")
     .single<BeautyService>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em toggleServiceActive:", { businessId, serviceId, isActive, error });
+    }
+    throw error;
+  }
+
   return data;
 }
 
@@ -88,7 +124,12 @@ export async function deleteService(businessId: string, serviceId: string) {
     .eq("id", serviceId)
     .is("deleted_at", null);
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em deleteService:", { businessId, serviceId, error });
+    }
+    throw error;
+  }
 }
 
 export async function upsertService(input: ServiceInput & { id?: string }) {

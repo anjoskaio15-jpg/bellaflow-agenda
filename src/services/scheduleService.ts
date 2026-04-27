@@ -12,7 +12,13 @@ export async function getSchedules(businessId: string) {
     .order("weekday")
     .returns<Schedule[]>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getSchedules:", { businessId, error });
+    }
+    throw error;
+  }
+
   return data ?? [];
 }
 
@@ -25,7 +31,17 @@ export async function getDaySchedule(businessId: string, date: string): Promise<
     supabase.from("schedule_overrides").select("*").eq("business_id", businessId).eq("override_date", date).returns<ScheduleOverride[]>(),
   ]);
 
-  if (scheduleError) throw scheduleError;
+  if (scheduleError) {
+    if (import.meta.env.DEV) {
+      console.error("Erro Supabase em getDaySchedule:", {
+        businessId,
+        date,
+        weekday,
+        error: scheduleError,
+      });
+    }
+    throw scheduleError;
+  }
 
   const baseSlots = schedule?.is_working_day ? makeSlots(schedule.start_time, schedule.end_time, schedule.slot_interval_minutes) : [];
   const removed = new Set((overrides ?? []).filter((item) => item.type === "removed").map((item) => item.slot_time.slice(0, 5)));
