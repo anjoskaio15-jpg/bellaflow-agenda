@@ -46,6 +46,11 @@ export function ClientePage() {
     async function load() {
       setLoading(true);
       const loadedBusiness = await getBusinessBySlug(slug);
+      if (!loadedBusiness) {
+        setBusiness(null);
+        setServices([]);
+        return;
+      }
       const loadedServices = await getServices(loadedBusiness.id);
       setBusiness(loadedBusiness);
       setServices(loadedServices);

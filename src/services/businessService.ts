@@ -2,14 +2,27 @@ import { supabase } from "@/lib/supabase";
 import type { Business, BusinessConfigInput, BusinessRole, BusinessUser } from "@/types/business";
 
 export async function getBusinessBySlug(slug: string) {
+  const normalizedSlug = slug.trim();
+
   const { data, error } = await supabase
     .from("businesses")
     .select("*")
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .single<Business>();
+    .eq("slug", normalizedSlug)
+    .maybeSingle<Business>();
 
-  if (error) throw error;
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro ao buscar business por slug:", {
+        slug: normalizedSlug,
+        error,
+      });
+    }
+    throw error;
+  }
+
+  if (!data) return null;
+  if (!data.is_active) return null;
+
   return data;
 }
 
