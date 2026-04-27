@@ -32,6 +32,30 @@ const defaultForm: BusinessConfigInput = {
   powered_by_enabled: true,
 };
 
+function normalizeBusinessForm(business: Business): BusinessConfigInput {
+  return {
+    name: business.name,
+    slug: business.slug,
+    description: business.description ?? "",
+    whatsapp: business.whatsapp,
+    email: business.email ?? "",
+    address: business.address ?? "",
+    plan: business.plan,
+    primary_color: business.primary_color,
+    secondary_color: business.secondary_color,
+    background_color: business.background_color,
+    foreground_color: business.foreground_color,
+    card_color: business.card_color,
+    border_color: business.border_color,
+    muted_color: business.muted_color,
+    success_color: business.success_color,
+    danger_color: business.danger_color,
+    booking_text: business.booking_text ?? "",
+    confirmation_text: business.confirmation_text ?? "",
+    powered_by_enabled: business.powered_by_enabled,
+  };
+}
+
 export function DevPage() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [form, setForm] = useState<BusinessConfigInput>(defaultForm);
@@ -42,7 +66,7 @@ export function DevPage() {
       .then((mine) => {
         if (mine?.business) {
           setBusiness(mine.business);
-          setForm(mine.business);
+          setForm(normalizeBusinessForm(mine.business));
           applyTheme(mine.business);
         }
       })
@@ -59,7 +83,7 @@ export function DevPage() {
     event.preventDefault();
     const saved = business ? await updateBusinessConfig(business.id, form) : await createBusiness(form);
     setBusiness(saved);
-    setForm(saved);
+    setForm(normalizeBusinessForm(saved));
     toast.success("Configuracao salva.");
   };
 
