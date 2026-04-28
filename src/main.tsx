@@ -18,6 +18,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/profissional"
+          element={<Navigate to="/profissional/taina-melo" replace />}
+        />
+        <Route
+          path="/profissional/:slug"
           element={
             <RequireAuth>
               <ProfissionalPage />

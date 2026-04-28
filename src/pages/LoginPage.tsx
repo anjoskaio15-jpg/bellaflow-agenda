@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export function LoginPage() {
     }
 
     toast.success("Login realizado.");
-    navigate("/profissional");
+    navigate(searchParams.get("redirect") || "/profissional/taina-melo");
   };
 
   return (
@@ -33,7 +34,7 @@ export function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Acessar BellaFlow</CardTitle>
-          <p className="text-sm text-muted-foreground">Entre com seu e-mail e senha do Supabase Auth.</p>
+          <p className="text-sm text-muted-foreground">Entre com seu e-mail e senha profissional. Use uma senha forte; senhas temporarias devem ser trocadas depois.</p>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={submit}>

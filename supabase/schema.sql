@@ -242,33 +242,45 @@ alter table public.bookings enable row level security;
 drop policy if exists "public can read active businesses" on public.businesses;
 create policy "public can read active businesses"
 on public.businesses for select
+to anon
 using (is_active = true);
+
+drop policy if exists "business users can read own businesses" on public.businesses;
+create policy "business users can read own businesses"
+on public.businesses for select
+to authenticated
+using (public.user_has_business_access(id));
 
 drop policy if exists "business users can update businesses" on public.businesses;
 create policy "business users can update businesses"
 on public.businesses for update
+to authenticated
 using (public.user_has_business_role(id, array['owner', 'agency', 'dev']))
 with check (public.user_has_business_role(id, array['owner', 'agency', 'dev']));
 
 drop policy if exists "agency can create businesses" on public.businesses;
 create policy "agency can create businesses"
 on public.businesses for insert
+to authenticated
 with check (auth.uid() is not null);
 
 drop policy if exists "business users can read membership" on public.business_users;
 create policy "business users can read membership"
 on public.business_users for select
+to authenticated
 using (user_id = auth.uid() or public.user_has_business_access(business_id));
 
 drop policy if exists "owners manage membership" on public.business_users;
 create policy "owners manage membership"
 on public.business_users for all
+to authenticated
 using (public.user_has_business_role(business_id, array['owner', 'agency', 'dev']))
 with check (public.user_has_business_role(business_id, array['owner', 'agency', 'dev']));
 
 drop policy if exists "authenticated user can claim new business" on public.business_users;
 create policy "authenticated user can claim new business"
 on public.business_users for insert
+to authenticated
 with check (
   user_id = auth.uid()
   and role = 'owner'
@@ -301,6 +313,7 @@ with check (public.user_has_business_access(business_id));
 drop policy if exists "public can read schedules" on public.schedules;
 create policy "public can read schedules"
 on public.schedules for select
+to anon
 using (
   exists (
     select 1 from public.businesses b
@@ -311,12 +324,14 @@ using (
 drop policy if exists "business users manage schedules" on public.schedules;
 create policy "business users manage schedules"
 on public.schedules for all
+to authenticated
 using (public.user_has_business_access(business_id))
 with check (public.user_has_business_access(business_id));
 
 drop policy if exists "public can read blocked dates" on public.blocked_dates;
 create policy "public can read blocked dates"
 on public.blocked_dates for select
+to anon
 using (
   exists (
     select 1 from public.businesses b
@@ -327,12 +342,14 @@ using (
 drop policy if exists "business users manage blocked dates" on public.blocked_dates;
 create policy "business users manage blocked dates"
 on public.blocked_dates for all
+to authenticated
 using (public.user_has_business_access(business_id))
 with check (public.user_has_business_access(business_id));
 
 drop policy if exists "public can read schedule overrides" on public.schedule_overrides;
 create policy "public can read schedule overrides"
 on public.schedule_overrides for select
+to anon
 using (
   exists (
     select 1 from public.businesses b
@@ -343,12 +360,14 @@ using (
 drop policy if exists "business users manage schedule overrides" on public.schedule_overrides;
 create policy "business users manage schedule overrides"
 on public.schedule_overrides for all
+to authenticated
 using (public.user_has_business_access(business_id))
 with check (public.user_has_business_access(business_id));
 
 drop policy if exists "public can create bookings" on public.bookings;
 create policy "public can create bookings"
 on public.bookings for insert
+to anon
 with check (
   status = 'pending'
   and exists (
@@ -360,11 +379,13 @@ with check (
 drop policy if exists "business users can read bookings" on public.bookings;
 create policy "business users can read bookings"
 on public.bookings for select
+to authenticated
 using (public.user_has_business_access(business_id));
 
 drop policy if exists "business users can update bookings" on public.bookings;
 create policy "business users can update bookings"
 on public.bookings for update
+to authenticated
 using (public.user_has_business_access(business_id))
 with check (public.user_has_business_access(business_id));
 

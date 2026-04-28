@@ -42,6 +42,69 @@ export async function getMyBusinessUser() {
   return data;
 }
 
+export async function getBusinessUserForBusiness(businessId: string) {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!userData.user) return null;
+
+  const { data, error } = await supabase
+    .from("business_users")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("user_id", userData.user.id)
+    .maybeSingle<BusinessUser>();
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro ao validar acesso do usuario ao business:", {
+        businessId,
+        userId: userData.user.id,
+        error,
+      });
+    }
+    throw error;
+  }
+
+  return data;
+}
+
+export async function getAuthenticatedBusinessBySlug(slug: string) {
+  const normalizedSlug = slug.trim();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!userData.user) return null;
+
+  const { data, error } = await supabase
+    .from("business_users")
+    .select("*, business:businesses(*)")
+    .eq("user_id", userData.user.id)
+    .returns<Array<BusinessUser & { business: Business | null }>>();
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error("Erro ao buscar agendas vinculadas ao usuario:", {
+        slug: normalizedSlug,
+        userId: userData.user.id,
+        error,
+      });
+    }
+    throw error;
+  }
+
+  const match = (data ?? []).find((item) => item.business?.slug === normalizedSlug && item.business.is_active);
+  if (!match?.business) return null;
+
+  return {
+    business: match.business,
+    membership: {
+      id: match.id,
+      business_id: match.business_id,
+      user_id: match.user_id,
+      role: match.role,
+    } satisfies BusinessUser,
+  };
+}
+
 export async function getMyBusiness() {
   const membership = await getMyBusinessUser();
   if (!membership) return null;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BellRing, CalendarX, Copy, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { ConfirmDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ServiceManagement } from "@/components/professional/ServiceManagement";
 import { cancelBooking, getBookingsByDate, getUpcomingBookings } from "@/services/bookingService";
-import { getMyBusiness } from "@/services/businessService";
+import { getAuthenticatedBusinessBySlug } from "@/services/businessService";
 import { addExtraSlot, getDaySchedule, getSchedules, removeSlot, toggleBlockedDate, toggleWorkingDay, updateScheduleHours } from "@/services/scheduleService";
 import { getServicesByBusiness } from "@/services/serviceService";
 import type { Booking } from "@/types/booking";
@@ -20,6 +21,7 @@ import { buildWhatsappUrl, messageTemplates } from "@/utils/whatsapp";
 const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
 export function ProfissionalPage() {
+  const { slug = "" } = useParams();
   const [business, setBusiness] = useState<Business | null>(null);
   const [services, setServices] = useState<BeautyService[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -28,20 +30,28 @@ export function ProfissionalPage() {
   const [selectedDate, setSelectedDate] = useState(todayIso());
   const [extraTime, setExtraTime] = useState("18:00");
   const [loading, setLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   const todayBookings = useMemo(() => bookings.filter((booking) => booking.booking_date === todayIso()), [bookings]);
   const revenue = useMemo(() => bookings.reduce((sum, booking) => sum + Number(booking.total_price), 0), [bookings]);
 
   const reload = async () => {
-    const mine = await getMyBusiness();
-    if (!mine) throw new Error("Empresa nao encontrada para este usuario.");
+    const access = await getAuthenticatedBusinessBySlug(slug);
+    if (!access) {
+      setBusiness(null);
+      setAccessDenied(true);
+      return;
+    }
+    const loadedBusiness = access.business;
+
     const [loadedServices, upcoming, loadedSchedules, selectedBookings] = await Promise.all([
-      getServicesByBusiness(mine.business.id),
-      getUpcomingBookings(mine.business.id),
-      getSchedules(mine.business.id),
-      getBookingsByDate(mine.business.id, selectedDate),
+      getServicesByBusiness(loadedBusiness.id),
+      getUpcomingBookings(loadedBusiness.id),
+      getSchedules(loadedBusiness.id),
+      getBookingsByDate(loadedBusiness.id, selectedDate),
     ]);
-    setBusiness(mine.business);
+    setBusiness(loadedBusiness);
+    setAccessDenied(false);
     setServices(loadedServices);
     setBookings(upcoming);
     setSchedules(loadedSchedules);
@@ -49,10 +59,11 @@ export function ProfissionalPage() {
   };
 
   useEffect(() => {
+    setLoading(true);
     reload()
       .catch(() => toast.error("Nao foi possivel carregar o painel."))
       .finally(() => setLoading(false));
-  }, [selectedDate]);
+  }, [selectedDate, slug]);
 
   const cancel = async (bookingId: string) => {
     await cancelBooking(bookingId);
@@ -78,6 +89,7 @@ export function ProfissionalPage() {
   };
 
   if (loading) return <main className="grid min-h-screen place-items-center p-6 text-muted-foreground">Carregando painel...</main>;
+  if (accessDenied) return <main className="grid min-h-screen place-items-center p-6 text-center">Você não tem acesso a esta agenda</main>;
   if (!business) return <main className="grid min-h-screen place-items-center p-6">Empresa nao encontrada.</main>;
 
   return (
