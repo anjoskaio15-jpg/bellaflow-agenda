@@ -38,7 +38,7 @@ export function applyTheme(business?: Partial<Business> | null) {
     "--primary": business.primary_color,
     "--secondary": business.secondary_color,
     "--background": business.background_color,
-    "--foreground": business.foreground_color,
+    "--foreground": business.text_color ?? business.foreground_color,
     "--card": business.card_color,
     "--border": business.border_color,
     "--muted": business.muted_color,

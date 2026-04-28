@@ -13,14 +13,20 @@ import type { Business, BusinessConfigInput, BusinessPlan } from "@/types/busine
 const defaultForm: BusinessConfigInput = {
   name: "",
   slug: "",
+  subtitle: "",
   description: "",
   whatsapp: "",
   email: "",
   address: "",
+  city: "",
+  instagram: "",
   plan: "starter",
+  headline: "",
+  bio: "",
   primary_color: "#C98F9B",
   secondary_color: "#F4DDE2",
   background_color: "#FFF8F8",
+  text_color: "#2A1D1F",
   foreground_color: "#2F2528",
   card_color: "#FFFFFF",
   border_color: "#E8D4D8",
@@ -36,14 +42,20 @@ function normalizeBusinessForm(business: Business): BusinessConfigInput {
   return {
     name: business.name,
     slug: business.slug,
+    subtitle: business.subtitle ?? "",
     description: business.description ?? "",
     whatsapp: business.whatsapp,
     email: business.email ?? "",
     address: business.address ?? "",
+    city: business.city ?? "",
+    instagram: business.instagram ?? "",
     plan: business.plan,
+    headline: business.headline ?? "",
+    bio: business.bio ?? "",
     primary_color: business.primary_color,
     secondary_color: business.secondary_color,
     background_color: business.background_color,
+    text_color: business.text_color ?? business.foreground_color,
     foreground_color: business.foreground_color,
     card_color: business.card_color,
     border_color: business.border_color,
@@ -103,9 +115,12 @@ export function DevPage() {
             <CardContent className="grid gap-3">
               <Field label="Nome"><Input value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} required /></Field>
               <Field label="Slug"><Input value={form.slug ?? ""} onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} required /></Field>
+              <Field label="Subtitulo"><Input value={form.subtitle ?? ""} onChange={(e) => set("subtitle", e.target.value)} /></Field>
               <Field label="WhatsApp"><Input value={form.whatsapp ?? ""} onChange={(e) => set("whatsapp", e.target.value)} required /></Field>
               <Field label="E-mail"><Input type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} /></Field>
+              <Field label="Cidade"><Input value={form.city ?? ""} onChange={(e) => set("city", e.target.value)} /></Field>
               <Field label="Endereco"><Input value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} /></Field>
+              <Field label="Instagram"><Input value={form.instagram ?? ""} onChange={(e) => set("instagram", e.target.value)} /></Field>
               <Field label="Descricao"><Textarea value={form.description ?? ""} onChange={(e) => set("description", e.target.value)} /></Field>
               <Field label="Plano">
                 <select className="h-11 rounded-md border bg-card px-3" value={form.plan} onChange={(e) => set("plan", e.target.value as BusinessPlan)}>
@@ -121,12 +136,14 @@ export function DevPage() {
             <CardHeader><CardTitle>Tema e textos</CardTitle></CardHeader>
             <CardContent className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
-                {(["primary_color", "secondary_color", "background_color", "foreground_color", "card_color", "border_color", "muted_color", "success_color", "danger_color"] as const).map((key) => (
+                {(["primary_color", "secondary_color", "background_color", "text_color", "foreground_color", "card_color", "border_color", "muted_color", "success_color", "danger_color"] as const).map((key) => (
                   <Field key={key} label={key.replace("_color", "").replace("_", " ")}>
                     <Input type="color" value={form[key] ?? "#ffffff"} onChange={(e) => set(key, e.target.value)} />
                   </Field>
                 ))}
               </div>
+              <Field label="Headline"><Textarea value={form.headline ?? ""} onChange={(e) => set("headline", e.target.value)} /></Field>
+              <Field label="Bio"><Textarea value={form.bio ?? ""} onChange={(e) => set("bio", e.target.value)} /></Field>
               <Field label="Texto de agendamento"><Textarea value={form.booking_text ?? ""} onChange={(e) => set("booking_text", e.target.value)} /></Field>
               <Field label="Texto de confirmacao"><Textarea value={form.confirmation_text ?? ""} onChange={(e) => set("confirmation_text", e.target.value)} /></Field>
               <label className="flex items-center gap-2 text-sm">

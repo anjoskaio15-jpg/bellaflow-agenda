@@ -22,7 +22,9 @@ export function Confirmation({ business, name, services, date, time }: Confirmat
       <CheckCircle2 className="mx-auto h-11 w-11 text-success" />
       <div>
         <h2 className="text-xl font-bold">Seu horario esta quase confirmado</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{business.confirmation_text}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {business.confirmation_text || "Seu horario esta quase confirmado. Toque no botao abaixo para enviar os detalhes pelo WhatsApp."}
+        </p>
       </div>
       <div className="rounded-md bg-secondary/50 p-3 text-sm">
         {services.map((service) => service.name).join(", ")} em {formatLongDate(date)} as {time}

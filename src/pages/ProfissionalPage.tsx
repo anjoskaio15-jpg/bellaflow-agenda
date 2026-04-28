@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { BusinessCustomization } from "@/components/professional/BusinessCustomization";
 import { ServiceManagement } from "@/components/professional/ServiceManagement";
 import { cancelBooking, getBookingsByDate, getUpcomingBookings } from "@/services/bookingService";
 import { getAuthenticatedBusinessBySlug } from "@/services/businessService";
@@ -105,6 +106,8 @@ export function ProfissionalPage() {
           <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground">Proximos</p><strong className="text-2xl">{bookings.length}</strong></CardContent></Card>
           <Card><CardContent className="p-4"><p className="text-sm text-muted-foreground">Receita prevista</p><strong className="text-2xl">R$ {revenue.toLocaleString("pt-BR")}</strong></CardContent></Card>
         </section>
+
+        <BusinessCustomization business={business} onBusinessUpdated={setBusiness} />
 
         <section className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
           <Card>

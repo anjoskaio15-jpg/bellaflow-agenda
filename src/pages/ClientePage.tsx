@@ -47,7 +47,7 @@ export function ClientePage() {
     : "Escolha um servico";
   const summaryLabel = selectedServices.length
     ? `${selectedServices.length} servico${selectedServices.length > 1 ? "s" : ""} - ${totalDuration} min`
-    : "Agendamento Taina Melo Beauty";
+    : `Agendamento ${business?.name ?? "online"}`;
 
   useEffect(() => {
     async function load() {
@@ -152,7 +152,7 @@ export function ClientePage() {
         <div className="rounded-lg border bg-card p-6 shadow-soft">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
           <h1 className="mt-4 text-xl font-bold">Preparando sua experiencia</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Carregando a agenda da Taina Melo Beauty.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Carregando a agenda online.</p>
         </div>
       </main>
     );
@@ -182,10 +182,10 @@ export function ClientePage() {
           {step === 1 ? (
             <section className="space-y-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-primary">Taina Melo Beauty</p>
-                <h2 className="mt-1 text-2xl font-bold">Agende seu horario na Taina Melo Beauty</h2>
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">{business.name}</p>
+                <h2 className="mt-1 text-2xl font-bold">{business.headline || `Agende seu horario na ${business.name}`}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Desde 2020, elevando autoestima em Natal/RN. Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.
+                  {business.booking_text || "Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp."}
                 </p>
               </div>
               <ServiceList services={services} selectedIds={selectedIds} onToggle={toggleService} />

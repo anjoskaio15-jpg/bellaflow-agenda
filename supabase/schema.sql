@@ -4,14 +4,20 @@ create table if not exists public.businesses (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
   slug text not null unique,
+  subtitle text,
   description text,
   whatsapp text not null,
   email text,
   address text,
+  city text,
+  instagram text,
   plan text not null default 'starter' check (plan in ('starter', 'pro', 'agency')),
+  headline text,
+  bio text,
   primary_color text not null default '#C98F9B',
   secondary_color text not null default '#F4DDE2',
   background_color text not null default '#FFF8F8',
+  text_color text default '#2A1D1F',
   foreground_color text not null default '#2F2528',
   card_color text not null default '#FFFFFF',
   border_color text not null default '#E8D4D8',
@@ -25,6 +31,13 @@ create table if not exists public.businesses (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.businesses add column if not exists subtitle text;
+alter table public.businesses add column if not exists city text;
+alter table public.businesses add column if not exists instagram text;
+alter table public.businesses add column if not exists headline text;
+alter table public.businesses add column if not exists bio text;
+alter table public.businesses add column if not exists text_color text default '#2A1D1F';
 
 create table if not exists public.business_users (
   id uuid primary key default uuid_generate_v4(),
@@ -434,14 +447,20 @@ on conflict (business_id, weekday) do nothing;
 insert into public.businesses (
   name,
   slug,
+  subtitle,
   description,
+  headline,
+  bio,
   whatsapp,
   email,
   address,
+  city,
+  instagram,
   plan,
   primary_color,
   secondary_color,
   background_color,
+  text_color,
   foreground_color,
   card_color,
   border_color,
@@ -453,14 +472,20 @@ insert into public.businesses (
 ) values (
   'Taina Melo Beauty',
   'taina-melo',
+  'Nails, cabelo e cilios em Natal/RN',
   'Desde 2020, elevando autoestima em Natal/RN. Unhas, cabelo, cilios e beleza feminina com atendimento por horario marcado.',
+  'Agende seu horario na Taina Melo Beauty',
+  'Mais de 5.000 atendimentos realizados desde 2020, com foco em beleza, autoestima e acabamento profissional.',
   '5584999999999',
   'contato@tainamelobeauty.com',
   'Natal/RN',
+  'Natal/RN',
+  '@tainamelobeauty',
   'pro',
   '#C98F9B',
   '#F3DDE2',
   '#FFF8F8',
+  '#2A1D1F',
   '#2A1D1F',
   '#FFFFFF',
   '#E8C8CF',
@@ -471,12 +496,18 @@ insert into public.businesses (
   true
 ) on conflict (slug) do update set
   name = excluded.name,
+  subtitle = excluded.subtitle,
   description = excluded.description,
+  headline = excluded.headline,
+  bio = excluded.bio,
   address = excluded.address,
+  city = excluded.city,
+  instagram = excluded.instagram,
   plan = excluded.plan,
   primary_color = excluded.primary_color,
   secondary_color = excluded.secondary_color,
   background_color = excluded.background_color,
+  text_color = excluded.text_color,
   foreground_color = excluded.foreground_color,
   card_color = excluded.card_color,
   border_color = excluded.border_color,

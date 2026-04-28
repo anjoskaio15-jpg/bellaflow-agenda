@@ -5,14 +5,17 @@ import { Button } from "@/components/ui/button";
 import { buildWhatsappUrl } from "@/utils/whatsapp";
 
 export function SalonHeader({ business }: { business: Business }) {
+  const subtitle = business.subtitle || [business.city, "Beleza com hora marcada"].filter(Boolean).join(" - ");
+  const description = business.bio || business.description || "Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.";
+
   return (
     <header className="space-y-5 rounded-lg border bg-card p-5 shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-primary">Agendamento com hora marcada</p>
           <h1 className="mt-2 text-3xl font-bold leading-tight text-foreground">{business.name}</h1>
-          <p className="mt-2 text-base font-medium text-foreground/80">Nails, cabelo e cilios em Natal/RN</p>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{business.description}</p>
+          <p className="mt-2 text-base font-medium text-foreground/80">{subtitle}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
         </div>
         <Button asChild size="icon" variant="secondary" className="shrink-0 rounded-full" aria-label="Abrir WhatsApp">
           <a href={buildWhatsappUrl(business.whatsapp, `Oi! Vim pelo agendamento online da ${business.name}.`)}>
@@ -24,7 +27,7 @@ export function SalonHeader({ business }: { business: Business }) {
       <div className="grid grid-cols-3 gap-2">
         <Highlight icon={<Sparkles className="h-4 w-4" />} label="+ 5.000" text="atendimentos" />
         <Highlight icon={<CalendarCheck className="h-4 w-4" />} label="Desde" text="2020" />
-        <Highlight icon={<MapPin className="h-4 w-4" />} label="Natal" text="RN" />
+        <Highlight icon={<MapPin className="h-4 w-4" />} label={business.city || "Natal"} text={business.city ? "local" : "RN"} />
       </div>
 
       {business.address ? <p className="rounded-md bg-secondary/50 p-3 text-sm text-muted-foreground">{business.address}</p> : null}
