@@ -7,11 +7,7 @@ import { buildWhatsappUrl } from "@/utils/whatsapp";
 export function SalonHeader({ business }: { business: Business }) {
   const subtitle = business.subtitle || [business.city, "Beleza com hora marcada"].filter(Boolean).join(" - ");
   const description = business.bio || business.description || "Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.";
-  const highlights = [
-    { icon: <Sparkles className="h-4 w-4" />, label: business.highlight_1_title || "+ 5.000", text: business.highlight_1_subtitle || "atendimentos" },
-    { icon: <CalendarCheck className="h-4 w-4" />, label: business.highlight_2_title || "Desde", text: business.highlight_2_subtitle || "2020" },
-    { icon: <MapPin className="h-4 w-4" />, label: business.highlight_3_title || "Natal/RN", text: business.highlight_3_subtitle || "local" },
-  ];
+  const highlights = buildHighlights(business);
 
   return (
     <header className="space-y-5 rounded-lg border bg-card p-5 shadow-soft">
@@ -29,23 +25,51 @@ export function SalonHeader({ business }: { business: Business }) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {highlights.map((highlight) => (
-          <Highlight key={`${highlight.label}-${highlight.text}`} icon={highlight.icon} label={highlight.label} text={highlight.text} />
-        ))}
-      </div>
+      {highlights.length ? (
+        <div className="grid grid-cols-3 gap-2">
+          {highlights.map((highlight, index) => (
+            <Highlight key={`${index}-${highlight.label}-${highlight.text}`} icon={highlight.icon} label={highlight.label} text={highlight.text} />
+          ))}
+        </div>
+      ) : null}
 
       {business.address ? <p className="rounded-md bg-secondary/50 p-3 text-sm text-muted-foreground">{business.address}</p> : null}
     </header>
   );
 }
 
+function valueOrInitialFallback(value: string | null | undefined, fallback: string) {
+  return value === null || value === undefined ? fallback : value;
+}
+
+function buildHighlights(business: Business) {
+  const items = [
+    {
+      icon: <Sparkles className="h-4 w-4" />,
+      label: valueOrInitialFallback(business.highlight_1_title, "+ 5.000"),
+      text: valueOrInitialFallback(business.highlight_1_subtitle, "atendimentos"),
+    },
+    {
+      icon: <CalendarCheck className="h-4 w-4" />,
+      label: valueOrInitialFallback(business.highlight_2_title, "Desde"),
+      text: valueOrInitialFallback(business.highlight_2_subtitle, "2020"),
+    },
+    {
+      icon: <MapPin className="h-4 w-4" />,
+      label: valueOrInitialFallback(business.highlight_3_title, "Natal/RN"),
+      text: valueOrInitialFallback(business.highlight_3_subtitle, "local"),
+    },
+  ];
+
+  return items.filter((item) => item.label.trim() || item.text.trim());
+}
+
 function Highlight({ icon, label, text }: { icon: React.ReactNode; label: string; text: string }) {
   return (
     <div className="rounded-md border bg-background/80 p-3 text-center">
       <div className="mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-primary">{icon}</div>
-      <strong className="block text-sm leading-tight">{label}</strong>
-      <span className="text-xs text-muted-foreground">{text}</span>
+      {label ? <strong className="block text-sm leading-tight">{label}</strong> : null}
+      {text ? <span className="text-xs text-muted-foreground">{text}</span> : null}
     </div>
   );
 }
