@@ -129,7 +129,15 @@ export function ServiceManagement({ businessId, onServicesChanged }: ServiceMana
       await deleteService(businessId, service.id);
       toast.success("Servico removido.");
       await loadServices();
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error("Erro ao remover servico na UI:", {
+          businessId,
+          serviceId: service.id,
+          service,
+          error,
+        });
+      }
       toast.error("Nao foi possivel remover o servico.");
     }
   };

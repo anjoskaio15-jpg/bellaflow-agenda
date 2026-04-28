@@ -82,7 +82,6 @@ export async function updateService(businessId: string, serviceId: string, input
     })
     .eq("business_id", businessId)
     .eq("id", serviceId)
-    .is("deleted_at", null)
     .select("*")
     .single<BeautyService>();
 
@@ -102,7 +101,6 @@ export async function toggleServiceActive(businessId: string, serviceId: string,
     .update({ is_active: isActive })
     .eq("business_id", businessId)
     .eq("id", serviceId)
-    .is("deleted_at", null)
     .select("*")
     .single<BeautyService>();
 
@@ -117,19 +115,40 @@ export async function toggleServiceActive(businessId: string, serviceId: string,
 }
 
 export async function deleteService(businessId: string, serviceId: string) {
-  const { error } = await supabase
+  const deletedAt = new Date().toISOString();
+  const { data, error } = await supabase
     .from("services")
-    .update({ is_active: false, deleted_at: new Date().toISOString() })
+    .update({ is_active: false, deleted_at: deletedAt })
     .eq("business_id", businessId)
     .eq("id", serviceId)
-    .is("deleted_at", null);
+    .select("*")
+    .maybeSingle<BeautyService>();
 
   if (error) {
     if (import.meta.env.DEV) {
-      console.error("Erro Supabase em deleteService:", { businessId, serviceId, error });
+      console.error("Erro Supabase em deleteService:", {
+        businessId,
+        serviceId,
+        payload: { is_active: false, deleted_at: deletedAt },
+        error,
+      });
     }
     throw error;
   }
+
+  if (!data) {
+    const errorMessage = "Servico nao encontrado para este negocio ou sem permissao de alteracao.";
+    if (import.meta.env.DEV) {
+      console.error("Soft delete sem linha alterada em deleteService:", {
+        businessId,
+        serviceId,
+        error: errorMessage,
+      });
+    }
+    throw new Error(errorMessage);
+  }
+
+  return data;
 }
 
 export async function upsertService(input: ServiceInput & { id?: string }) {

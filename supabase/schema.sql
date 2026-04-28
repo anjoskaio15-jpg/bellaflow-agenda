@@ -310,6 +310,13 @@ to authenticated
 using (public.user_has_business_access(business_id))
 with check (public.user_has_business_access(business_id));
 
+drop policy if exists "business users update own services" on public.services;
+create policy "business users update own services"
+on public.services for update
+to authenticated
+using (public.user_has_business_access(business_id))
+with check (public.user_has_business_access(business_id));
+
 drop policy if exists "public can read schedules" on public.schedules;
 create policy "public can read schedules"
 on public.schedules for select
