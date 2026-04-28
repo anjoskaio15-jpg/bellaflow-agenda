@@ -301,7 +301,12 @@ with check (public.user_has_business_access(business_id));
 drop policy if exists "public can read schedules" on public.schedules;
 create policy "public can read schedules"
 on public.schedules for select
-using (true);
+using (
+  exists (
+    select 1 from public.businesses b
+    where b.id = schedules.business_id and b.is_active = true
+  )
+);
 
 drop policy if exists "business users manage schedules" on public.schedules;
 create policy "business users manage schedules"
@@ -312,7 +317,12 @@ with check (public.user_has_business_access(business_id));
 drop policy if exists "public can read blocked dates" on public.blocked_dates;
 create policy "public can read blocked dates"
 on public.blocked_dates for select
-using (true);
+using (
+  exists (
+    select 1 from public.businesses b
+    where b.id = blocked_dates.business_id and b.is_active = true
+  )
+);
 
 drop policy if exists "business users manage blocked dates" on public.blocked_dates;
 create policy "business users manage blocked dates"
@@ -323,7 +333,12 @@ with check (public.user_has_business_access(business_id));
 drop policy if exists "public can read schedule overrides" on public.schedule_overrides;
 create policy "public can read schedule overrides"
 on public.schedule_overrides for select
-using (true);
+using (
+  exists (
+    select 1 from public.businesses b
+    where b.id = schedule_overrides.business_id and b.is_active = true
+  )
+);
 
 drop policy if exists "business users manage schedule overrides" on public.schedule_overrides;
 create policy "business users manage schedule overrides"
@@ -334,7 +349,13 @@ with check (public.user_has_business_access(business_id));
 drop policy if exists "public can create bookings" on public.bookings;
 create policy "public can create bookings"
 on public.bookings for insert
-with check (status = 'pending');
+with check (
+  status = 'pending'
+  and exists (
+    select 1 from public.businesses b
+    where b.id = bookings.business_id and b.is_active = true
+  )
+);
 
 drop policy if exists "business users can read bookings" on public.bookings;
 create policy "business users can read bookings"
@@ -380,4 +401,88 @@ select id, weekday, weekday between 1 and 6, '09:00', '18:00', 30
 from public.businesses
 cross join generate_series(0, 6) as weekday
 where slug = 'bella-rosa'
+on conflict (business_id, weekday) do nothing;
+
+insert into public.businesses (
+  name,
+  slug,
+  description,
+  whatsapp,
+  email,
+  address,
+  plan,
+  primary_color,
+  secondary_color,
+  background_color,
+  foreground_color,
+  card_color,
+  border_color,
+  muted_color,
+  booking_text,
+  confirmation_text,
+  powered_by_enabled,
+  is_active
+) values (
+  'Taina Melo Beauty',
+  'taina-melo',
+  'Desde 2020, elevando autoestima em Natal/RN. Unhas, cabelo, cilios e beleza feminina com atendimento por horario marcado.',
+  '5584999999999',
+  'contato@tainamelobeauty.com',
+  'Natal/RN',
+  'pro',
+  '#C98F9B',
+  '#F3DDE2',
+  '#FFF8F8',
+  '#2A1D1F',
+  '#FFFFFF',
+  '#E8C8CF',
+  '#8D747A',
+  'Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.',
+  'Seu horario esta quase confirmado. Toque no botao abaixo para enviar os detalhes pelo WhatsApp.',
+  false,
+  true
+) on conflict (slug) do update set
+  name = excluded.name,
+  description = excluded.description,
+  address = excluded.address,
+  plan = excluded.plan,
+  primary_color = excluded.primary_color,
+  secondary_color = excluded.secondary_color,
+  background_color = excluded.background_color,
+  foreground_color = excluded.foreground_color,
+  card_color = excluded.card_color,
+  border_color = excluded.border_color,
+  muted_color = excluded.muted_color,
+  booking_text = excluded.booking_text,
+  confirmation_text = excluded.confirmation_text,
+  powered_by_enabled = excluded.powered_by_enabled,
+  is_active = true;
+
+insert into public.services (business_id, name, description, duration_minutes, price, is_active)
+select b.id, s.name, s.description, s.duration_minutes, s.price, true
+from public.businesses b
+cross join (
+  values
+    ('Alongamento de unhas', 'Alongamento com acabamento delicado e duradouro.', 120, 180.00),
+    ('Manutencao de alongamento', 'Manutencao tecnica para preservar beleza e resistencia.', 90, 120.00),
+    ('Manicure em gel', 'Cuidado completo com acabamento em gel.', 75, 90.00),
+    ('Esmaltacao em gel', 'Brilho intenso e maior durabilidade para as unhas.', 60, 75.00),
+    ('Nail art', 'Decoracao personalizada para deixar suas unhas unicas.', 45, 60.00),
+    ('Cutilagem + esmaltacao', 'Cuidado das cuticulas com esmaltacao profissional.', 60, 55.00),
+    ('Design de sobrancelhas', 'Modelagem para valorizar o olhar com naturalidade.', 45, 50.00),
+    ('Extensao de cilios', 'Aplicacao para destacar o olhar com acabamento feminino.', 120, 160.00),
+    ('Manutencao de cilios', 'Manutencao para manter volume e acabamento.', 75, 100.00),
+    ('Finalizacao de cabelo', 'Escova, modelagem e finalizacao para ocasioes especiais.', 60, 80.00)
+) as s(name, description, duration_minutes, price)
+where b.slug = 'taina-melo'
+  and not exists (
+    select 1 from public.services existing
+    where existing.business_id = b.id and existing.name = s.name
+  );
+
+insert into public.schedules (business_id, weekday, is_working_day, start_time, end_time, slot_interval_minutes)
+select id, weekday, weekday between 1 and 6, '09:00', '18:00', 30
+from public.businesses
+cross join generate_series(0, 6) as weekday
+where slug = 'taina-melo'
 on conflict (business_id, weekday) do nothing;

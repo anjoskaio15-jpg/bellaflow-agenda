@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarX, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { BellRing, CalendarX, Copy, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,6 +60,15 @@ export function ProfissionalPage() {
     await reload();
   };
 
+  const copyMessage = async (message: string) => {
+    try {
+      await navigator.clipboard.writeText(message);
+      toast.success("Mensagem copiada.");
+    } catch {
+      toast.error("Nao foi possivel copiar a mensagem.");
+    }
+  };
+
   const toggleBlock = async () => {
     if (!business) return;
     const day = await getDaySchedule(business.id, selectedDate);
@@ -116,6 +125,22 @@ export function ProfissionalPage() {
                           <a href={buildWhatsappUrl(booking.client_whatsapp, messageTemplates.confirmation(booking.client_name, serviceNames, booking.booking_date, booking.start_time.slice(0, 5)))} target="_blank" rel="noreferrer">
                             <MessageCircle className="h-4 w-4" />
                           </a>
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Copiar confirmacao"
+                          onClick={() => copyMessage(messageTemplates.confirmation(booking.client_name, serviceNames, booking.booking_date, booking.start_time.slice(0, 5)))}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Copiar lembrete"
+                          onClick={() => copyMessage(messageTemplates.reminder(booking.client_name, serviceNames, booking.booking_date, booking.start_time.slice(0, 5)))}
+                        >
+                          <BellRing className="h-4 w-4" />
                         </Button>
                         <ConfirmDialog title="Cancelar agendamento?" description="Essa acao muda o status para cancelado." onConfirm={() => cancel(booking.id)}>
                           <Button size="icon" variant="danger"><Trash2 className="h-4 w-4" /></Button>

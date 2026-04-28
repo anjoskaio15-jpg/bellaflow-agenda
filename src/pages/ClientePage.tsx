@@ -1,3 +1,4 @@
+import { CalendarHeart, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -41,6 +42,12 @@ export function ClientePage() {
   const selectedServices = useMemo(() => services.filter((service) => selectedIds.includes(service.id)), [services, selectedIds]);
   const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration_minutes, 0);
   const totalPrice = selectedServices.reduce((sum, service) => sum + Number(service.price), 0);
+  const totalLabel = selectedServices.length
+    ? `R$ ${totalPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+    : "Escolha um servico";
+  const summaryLabel = selectedServices.length
+    ? `${selectedServices.length} servico${selectedServices.length > 1 ? "s" : ""} - ${totalDuration} min`
+    : "Agendamento Taina Melo Beauty";
 
   useEffect(() => {
     async function load() {
@@ -66,7 +73,7 @@ export function ClientePage() {
             error,
           });
         }
-        toast.error("Nao foi possivel carregar esta agenda.");
+        toast.error("Nao conseguimos carregar a agenda agora. Tente novamente em instantes.");
       })
       .finally(() => setLoading(false));
   }, [slug]);
@@ -89,7 +96,7 @@ export function ClientePage() {
             error,
           });
         }
-        toast.error("Nao foi possivel buscar horarios.");
+        toast.error("Nao conseguimos buscar os horarios dessa data. Escolha outra data ou tente novamente.");
       })
       .finally(() => setSlotLoading(false));
   }, [business, date, totalDuration]);
@@ -107,7 +114,7 @@ export function ClientePage() {
   };
 
   const next = async () => {
-    if (step === 1 && selectedIds.length === 0) return toast.warning("Escolha pelo menos um servico.");
+    if (step === 1 && selectedIds.length === 0) return toast.warning("Escolha pelo menos um servico para continuar.");
     if (step === 3 && !time) return toast.warning("Escolha um horario disponivel.");
     if (step === 4) {
       const error = validateBookingBasics(name, whatsapp, selectedIds.length);
@@ -139,21 +146,47 @@ export function ClientePage() {
     setStep((current) => Math.min(current + 1, 5));
   };
 
-  if (loading) return <main className="grid min-h-screen place-items-center p-6 text-muted-foreground">Carregando agenda...</main>;
-  if (!business) return <main className="grid min-h-screen place-items-center p-6 text-center">Agenda nao encontrada.</main>;
+  if (loading) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-background p-6 text-center">
+        <div className="rounded-lg border bg-card p-6 shadow-soft">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+          <h1 className="mt-4 text-xl font-bold">Preparando sua experiencia</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Carregando a agenda da Taina Melo Beauty.</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!business) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-background p-6 text-center">
+        <div className="max-w-sm rounded-lg border bg-card p-6 shadow-soft">
+          <CalendarHeart className="mx-auto h-10 w-10 text-primary" />
+          <h1 className="mt-4 text-xl font-bold">Agenda indisponivel</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Nao encontramos essa pagina de agendamento. Confira o link ou fale com a profissional pelo Instagram.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen pb-28 md:pb-8">
+    <main className="min-h-screen bg-background pb-36 md:pb-8">
       <div className="mx-auto max-w-3xl space-y-5 p-4">
         <SalonHeader business={business} />
         <StepIndicator step={step} />
 
-        <Card className="p-4">
+        <Card className="p-4 shadow-soft">
           {step === 1 ? (
             <section className="space-y-4">
               <div>
-                <h2 className="text-xl font-bold">Escolha ate 3 servicos</h2>
-                <p className="text-sm text-muted-foreground">{business.booking_text}</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">Taina Melo Beauty</p>
+                <h2 className="mt-1 text-2xl font-bold">Agende seu horario na Taina Melo Beauty</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Desde 2020, elevando autoestima em Natal/RN. Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.
+                </p>
               </div>
               <ServiceList services={services} selectedIds={selectedIds} onToggle={toggleService} />
             </section>
@@ -202,8 +235,10 @@ export function ClientePage() {
         <BottomBar
           onBack={step > 1 ? () => setStep((current) => current - 1) : undefined}
           onNext={next}
-          nextLabel={step === 4 ? "Criar agendamento" : "Continuar"}
+          nextLabel={step === 4 ? "Criar agendamento" : "Continuar agendamento"}
           loading={saving}
+          summary={summaryLabel}
+          total={totalLabel}
         />
       ) : null}
       <WhatsAppFAB phone={business.whatsapp} businessName={business.name} />

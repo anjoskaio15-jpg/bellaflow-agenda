@@ -4,7 +4,7 @@ import { normalizeBrazilWhatsapp } from "./masks";
 
 export const buildClientConfirmationMessage = (name: string, services: BeautyService[], date: string, time: string) => {
   const serviceNames = services.map((service) => service.name).join(", ");
-  return `Oi, meu nome e ${name}. Quero confirmar meu horario para ${serviceNames} no dia ${formatLongDate(date)} as ${time}.`;
+  return `Oi Taina! Quero confirmar meu horario para ${serviceNames} no dia ${formatLongDate(date)} as ${time}. Meu nome e ${name}.`;
 };
 
 export const buildWhatsappUrl = (phone: string, message: string) =>

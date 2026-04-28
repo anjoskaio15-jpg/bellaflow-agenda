@@ -140,7 +140,7 @@ export function ServiceManagement({ businessId, onServicesChanged }: ServiceMana
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle>Meus servicos</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">Cadastre os atendimentos que aparecem na pagina da cliente.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Adicione, edite precos, duracao e disponibilidade dos atendimentos.</p>
           </div>
           <Button type="button" onClick={openNewForm}>
             <Plus className="h-4 w-4" /> Novo servico
@@ -211,7 +211,7 @@ export function ServiceManagement({ businessId, onServicesChanged }: ServiceMana
                 checked={form.is_active}
                 onChange={(event) => setForm((current) => ({ ...current, is_active: event.target.checked }))}
               />
-              Servico ativo na pagina da cliente
+              Mostrar este servico na pagina da cliente
             </label>
 
             <Button className="h-12 w-full text-base" disabled={saving}>

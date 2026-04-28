@@ -18,10 +18,10 @@ export function Confirmation({ business, name, services, date, time }: Confirmat
   const message = buildClientConfirmationMessage(name, services, date, time);
 
   return (
-    <Card className="space-y-4 p-5 text-center">
-      <CheckCircle2 className="mx-auto h-10 w-10 text-success" />
+    <Card className="space-y-4 p-5 text-center shadow-soft">
+      <CheckCircle2 className="mx-auto h-11 w-11 text-success" />
       <div>
-        <h2 className="text-xl font-bold">Horario solicitado</h2>
+        <h2 className="text-xl font-bold">Seu horario esta quase confirmado</h2>
         <p className="mt-2 text-sm text-muted-foreground">{business.confirmation_text}</p>
       </div>
       <div className="rounded-md bg-secondary/50 p-3 text-sm">
