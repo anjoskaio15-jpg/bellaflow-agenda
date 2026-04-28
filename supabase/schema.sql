@@ -14,6 +14,12 @@ create table if not exists public.businesses (
   plan text not null default 'starter' check (plan in ('starter', 'pro', 'agency')),
   headline text,
   bio text,
+  highlight_1_title text,
+  highlight_1_subtitle text,
+  highlight_2_title text,
+  highlight_2_subtitle text,
+  highlight_3_title text,
+  highlight_3_subtitle text,
   primary_color text not null default '#C98F9B',
   secondary_color text not null default '#F4DDE2',
   background_color text not null default '#FFF8F8',
@@ -37,6 +43,12 @@ alter table public.businesses add column if not exists city text;
 alter table public.businesses add column if not exists instagram text;
 alter table public.businesses add column if not exists headline text;
 alter table public.businesses add column if not exists bio text;
+alter table public.businesses add column if not exists highlight_1_title text;
+alter table public.businesses add column if not exists highlight_1_subtitle text;
+alter table public.businesses add column if not exists highlight_2_title text;
+alter table public.businesses add column if not exists highlight_2_subtitle text;
+alter table public.businesses add column if not exists highlight_3_title text;
+alter table public.businesses add column if not exists highlight_3_subtitle text;
 alter table public.businesses add column if not exists text_color text default '#2A1D1F';
 
 create table if not exists public.business_users (
@@ -451,6 +463,12 @@ insert into public.businesses (
   description,
   headline,
   bio,
+  highlight_1_title,
+  highlight_1_subtitle,
+  highlight_2_title,
+  highlight_2_subtitle,
+  highlight_3_title,
+  highlight_3_subtitle,
   whatsapp,
   email,
   address,
@@ -476,6 +494,12 @@ insert into public.businesses (
   'Desde 2020, elevando autoestima em Natal/RN. Unhas, cabelo, cilios e beleza feminina com atendimento por horario marcado.',
   'Agende seu horario na Taina Melo Beauty',
   'Mais de 5.000 atendimentos realizados desde 2020, com foco em beleza, autoestima e acabamento profissional.',
+  '+ 5.000',
+  'atendimentos',
+  'Desde',
+  '2020',
+  'Natal/RN',
+  'local',
   '5584999999999',
   'contato@tainamelobeauty.com',
   'Natal/RN',
@@ -500,6 +524,12 @@ insert into public.businesses (
   description = excluded.description,
   headline = excluded.headline,
   bio = excluded.bio,
+  highlight_1_title = excluded.highlight_1_title,
+  highlight_1_subtitle = excluded.highlight_1_subtitle,
+  highlight_2_title = excluded.highlight_2_title,
+  highlight_2_subtitle = excluded.highlight_2_subtitle,
+  highlight_3_title = excluded.highlight_3_title,
+  highlight_3_subtitle = excluded.highlight_3_subtitle,
   address = excluded.address,
   city = excluded.city,
   instagram = excluded.instagram,

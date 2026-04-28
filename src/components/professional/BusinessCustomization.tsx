@@ -99,6 +99,18 @@ export function BusinessCustomization({ business, onBusinessUpdated }: BusinessC
               <Field label="Bio"><Textarea value={form.bio ?? ""} onChange={(e) => set("bio", e.target.value)} /></Field>
               <Field label="Texto de agendamento"><Textarea value={form.booking_text ?? ""} onChange={(e) => set("booking_text", e.target.value)} /></Field>
               <Field label="Texto de confirmação"><Textarea value={form.confirmation_text ?? ""} onChange={(e) => set("confirmation_text", e.target.value)} /></Field>
+              <div className="rounded-lg border bg-secondary/20 p-4">
+                <h3 className="font-semibold">Destaques da página</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Edite os três indicadores exibidos no topo da página pública.</p>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <Field label="Destaque 1 título"><Input value={form.highlight_1_title ?? ""} onChange={(e) => set("highlight_1_title", e.target.value)} /></Field>
+                  <Field label="Destaque 1 subtítulo"><Input value={form.highlight_1_subtitle ?? ""} onChange={(e) => set("highlight_1_subtitle", e.target.value)} /></Field>
+                  <Field label="Destaque 2 título"><Input value={form.highlight_2_title ?? ""} onChange={(e) => set("highlight_2_title", e.target.value)} /></Field>
+                  <Field label="Destaque 2 subtítulo"><Input value={form.highlight_2_subtitle ?? ""} onChange={(e) => set("highlight_2_subtitle", e.target.value)} /></Field>
+                  <Field label="Destaque 3 título"><Input value={form.highlight_3_title ?? ""} onChange={(e) => set("highlight_3_title", e.target.value)} /></Field>
+                  <Field label="Destaque 3 subtítulo"><Input value={form.highlight_3_subtitle ?? ""} onChange={(e) => set("highlight_3_subtitle", e.target.value)} /></Field>
+                </div>
+              </div>
             </div>
           ) : null}
 
@@ -122,6 +134,11 @@ export function BusinessCustomization({ business, onBusinessUpdated }: BusinessC
                 <h3 className="mt-2 text-2xl font-bold">{form.name || "Nome do negócio"}</h3>
                 <p className="mt-1 font-medium">{form.subtitle || "Subtitulo da pagina"}</p>
                 <p className="mt-3 text-sm opacity-75">{form.bio || form.description || "Bio da pagina publica."}</p>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+                  <PreviewHighlight title={form.highlight_1_title || "+ 5.000"} subtitle={form.highlight_1_subtitle || "atendimentos"} />
+                  <PreviewHighlight title={form.highlight_2_title || "Desde"} subtitle={form.highlight_2_subtitle || "2020"} />
+                  <PreviewHighlight title={form.highlight_3_title || "Natal/RN"} subtitle={form.highlight_3_subtitle || "local"} />
+                </div>
                 <button type="button" className="mt-4 h-11 rounded-md px-4 text-sm font-semibold text-white" style={{ background: form.primary_color }}>
                   Continuar agendamento
                 </button>
@@ -149,6 +166,12 @@ function normalizeBusiness(business: Business): BusinessConfigInput {
     instagram: business.instagram ?? "",
     headline: business.headline ?? "",
     bio: business.bio ?? "",
+    highlight_1_title: business.highlight_1_title ?? "+ 5.000",
+    highlight_1_subtitle: business.highlight_1_subtitle ?? "atendimentos",
+    highlight_2_title: business.highlight_2_title ?? "Desde",
+    highlight_2_subtitle: business.highlight_2_subtitle ?? "2020",
+    highlight_3_title: business.highlight_3_title ?? "Natal/RN",
+    highlight_3_subtitle: business.highlight_3_subtitle ?? "local",
     booking_text: business.booking_text ?? "",
     confirmation_text: business.confirmation_text ?? "",
     primary_color: business.primary_color || "#C98F9B",
@@ -158,6 +181,15 @@ function normalizeBusiness(business: Business): BusinessConfigInput {
     foreground_color: business.text_color || business.foreground_color || "#2A1D1F",
     card_color: business.card_color || "#FFFFFF",
   };
+}
+
+function PreviewHighlight({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="rounded-md border bg-white/70 p-2">
+      <strong className="block">{title}</strong>
+      <span className="opacity-70">{subtitle}</span>
+    </div>
+  );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

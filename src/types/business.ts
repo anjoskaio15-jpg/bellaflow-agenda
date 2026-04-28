@@ -15,6 +15,12 @@ export interface Business {
   plan: BusinessPlan;
   headline: string | null;
   bio: string | null;
+  highlight_1_title: string | null;
+  highlight_1_subtitle: string | null;
+  highlight_2_title: string | null;
+  highlight_2_subtitle: string | null;
+  highlight_3_title: string | null;
+  highlight_3_subtitle: string | null;
   primary_color: string;
   secondary_color: string;
   background_color: string;
@@ -51,6 +57,12 @@ export interface BusinessConfigInput {
   plan?: BusinessPlan;
   headline?: string;
   bio?: string;
+  highlight_1_title?: string;
+  highlight_1_subtitle?: string;
+  highlight_2_title?: string;
+  highlight_2_subtitle?: string;
+  highlight_3_title?: string;
+  highlight_3_subtitle?: string;
   primary_color?: string;
   secondary_color?: string;
   background_color?: string;

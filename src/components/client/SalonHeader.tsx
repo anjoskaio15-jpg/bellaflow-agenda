@@ -7,6 +7,11 @@ import { buildWhatsappUrl } from "@/utils/whatsapp";
 export function SalonHeader({ business }: { business: Business }) {
   const subtitle = business.subtitle || [business.city, "Beleza com hora marcada"].filter(Boolean).join(" - ");
   const description = business.bio || business.description || "Escolha seu servico, selecione o melhor horario e confirme pelo WhatsApp.";
+  const highlights = [
+    { icon: <Sparkles className="h-4 w-4" />, label: business.highlight_1_title || "+ 5.000", text: business.highlight_1_subtitle || "atendimentos" },
+    { icon: <CalendarCheck className="h-4 w-4" />, label: business.highlight_2_title || "Desde", text: business.highlight_2_subtitle || "2020" },
+    { icon: <MapPin className="h-4 w-4" />, label: business.highlight_3_title || "Natal/RN", text: business.highlight_3_subtitle || "local" },
+  ];
 
   return (
     <header className="space-y-5 rounded-lg border bg-card p-5 shadow-soft">
@@ -25,9 +30,9 @@ export function SalonHeader({ business }: { business: Business }) {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <Highlight icon={<Sparkles className="h-4 w-4" />} label="+ 5.000" text="atendimentos" />
-        <Highlight icon={<CalendarCheck className="h-4 w-4" />} label="Desde" text="2020" />
-        <Highlight icon={<MapPin className="h-4 w-4" />} label={business.city || "Natal"} text={business.city ? "local" : "RN"} />
+        {highlights.map((highlight) => (
+          <Highlight key={`${highlight.label}-${highlight.text}`} icon={highlight.icon} label={highlight.label} text={highlight.text} />
+        ))}
       </div>
 
       {business.address ? <p className="rounded-md bg-secondary/50 p-3 text-sm text-muted-foreground">{business.address}</p> : null}
